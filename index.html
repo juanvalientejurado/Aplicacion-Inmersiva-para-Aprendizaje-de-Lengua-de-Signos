@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://gftruj.github.io/hand.tracking.controls.extras/dist/aframe-hand-tracking-controls-extras.js"></script>
+
+    <script src="script_andrea.js"></script>
+  </head>
+  <body>
+    <a-scene>
+      <a-sky color="#ECECEC"></a-sky>
+      <a-entity
+        id="rightHand"
+        hand-tracking-controls="hand: right"
+        hand-tracking-extras
+        log-hand-pose
+      ></a-entity>
+
+      <a-entity
+        hand-tracking-controls="hand: left"
+        hand-tracking-extras
+        log-hand-pose
+      ></a-entity>
+    </a-scene>
+
+    
+  </body>
+</html>
