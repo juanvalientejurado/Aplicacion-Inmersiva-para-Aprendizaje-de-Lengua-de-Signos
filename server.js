@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 const server = require("http").Server(app);
 const wss = new WebSocket.Server({ server });
-
+const fs  = require('fs');
 
 const path = require('path');
 const htmlFilePath = path.join(process.cwd(), 'index.html');
@@ -19,7 +19,7 @@ app.get('/script_toma_datos.js', function(req, res) {
 });
   
 
-
+let accumulatedData = [];
 wss.on("connection", function connection(ws){
   console.log("Conexion hecha");
 
@@ -31,17 +31,32 @@ wss.on("connection", function connection(ws){
         //writeStream = fs.createWriteStream(`data/${Date.now()}.json`);
         
         break;
-      case "STOP":
+      case "STOP RECORDING":
         //if (writeStream) writeStream.end();
-        console.log("STOP");
+        console.log("STOP RECORDING");
+        if (accumulatedData.length > 0) {
+          const data = JSON.stringify(accumulatedData);
+          const filename = 'gestoprueba.json';
+          fs.appendFile(filename, data, (err) => {
+            if (err) {
+              console.error(err);
+            } else {
+              console.log(`Archivo guardado como ${filename}`);
+            }
+          });
+          accumulatedData = []; // Restablece los datos acumulados para la siguiente sesión
+        }
         break;
+
       case "HAND":
         //writeStream.write(msg.payload + os.EOL);
         console.log("Waiting");
         break;
       case "RECORDING":
-        console.log(msg.payload);
-        break;
+      console.log("Recording");
+      accumulatedData.push(msg.payload);
+      break;
+
 
       default:
     }

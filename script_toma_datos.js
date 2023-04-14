@@ -96,10 +96,10 @@ AFRAME.registerComponent("log-hand-pose", {
             
             //console.log(joints[22].pos.x)
             //Enviamos el objeto por websocket
-            if (i>3000){
+            if (i>1000 && i< 3000){
               webSocket.send(JSON.stringify({msg: "RECORDING", payload: joints}));
-            }else{
-              webSocket.send(JSON.stringify({msg: "HAND"}));
+            }else if(i > 3000){
+              webSocket.send(JSON.stringify({msg: "STOP RECORDING"}));
             }
 
           }else{
