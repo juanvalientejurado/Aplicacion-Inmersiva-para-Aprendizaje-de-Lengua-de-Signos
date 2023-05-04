@@ -10,6 +10,10 @@ const clases = {
     vocalu: 4
   };
 
+//Modelo(
+const INPUT_SHAPE = 150; //Tamaño del frame (n_coordenadas)
+const NUM_CLASSES = 5;
+
 
 
 // Leer el archivo JSON y convertirlo en objeto de JavaScript
@@ -44,10 +48,27 @@ const allData = datosA.concat(datosE, datosI, datosO, datosU);
 var tensor_data = createDataTensor(allData);
 var X_train = tensor_data.X_train;
 var X_test = tensor_data.X_test;
-var y_train = tensor_data.y_train;
+var y_train= tensor_data.y_train;
 var y_test = tensor_data.y_test;
 
+async function app(){
+const model = createModel();
+//var y_train = tf.expandDims(y_train_plain, 1);
+//console.log(y_train.shape);
 
+//const y_train_onehot = tf.oneHot(tf.tensor1d(y_train_plain.arraySync(), 'int32'), NUM_CLASSES);
+await trainModel(model, X_train, y_train);
+console.log("Model trained");
+
+const predictions = model.predict(X_test);
+
+const y_test_pred = predictions.argMax(axis=1).arraySync();
+const confusionMatrix = tf.math.confusionMatrix(y_test, y_test_pred, NUM_CLASSES);
+
+console.log(confusionMatrix.arraySync());
+}
+
+app();
 
 //Rellena el array asignando clases en funcion del archivo del que se lee
 function rellenarArray(index){
@@ -132,7 +153,45 @@ function createDataTensor(data){
     };
 }
 
+//Creacion del modelo
+function createModel(){
+    const model = tf.sequential();
+    model.add(tf.layers.dense({inputShape: [150], units: 64, activation: 'relu'}));   
+    model.add(tf.layers.dense({units: 32, activation: 'relu'}));
+    model.add(tf.layers.dense({units: NUM_CLASSES, activation: 'softmax'}));
+      
+    model.summary();
+    return model;
+}
+
+async function trainModel(model, X_train, y_train){
+    model.compile({
+        optimizer: 'adam',
+        loss: 'sparseCategoricalCrossentropy',
+        metrics: ['accuracy']
+    });
+
+    const params = {
+        shuffle: true,
+        validationSplit: 0.2,
+        batchSize: 16,
+        epochs: 40,
+        callbacks: [new tf.CustomCallback({ onEpochEnd: logProgress })       
+      ]
+    };
+
+    const results = await model.fit(X_train, y_train, params);
+    console.log("Average error loss: " + Math.sqrt(results.history.loss[results.history.loss.length - 1]));//Error cuadrático medio
+    console.log("Average validation error loss: " + Math.sqrt(results.history.val_loss[results.history.val_loss.length - 1]));
+}
+
 //Funcion auxiliar para aleatorizar
 function aleatorizar(a,b){
     return Math.random() - 0.5;
+}
+
+//Funcion auxiliar loss logaritmico
+//Progreso de la loss en logarítmico
+function logProgress(epoch, logs) {
+    console.log(`Data for epoch ${epoch}, ${Math.sqrt(logs.loss)}`);
 }
