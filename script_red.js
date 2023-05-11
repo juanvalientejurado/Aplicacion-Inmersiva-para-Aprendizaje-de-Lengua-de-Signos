@@ -64,7 +64,7 @@ const predictions = model.predict(X_test);
 
 const y_test_pred = predictions.argMax(axis=1).arraySync();
 const confusionMatrix = tf.math.confusionMatrix(y_test, y_test_pred, NUM_CLASSES);
-
+//await model.save('file://./models/modelo_manos');
 console.log(confusionMatrix.arraySync());
 }
 
@@ -175,7 +175,7 @@ async function trainModel(model, X_train, y_train){
         shuffle: true,
         validationSplit: 0.2,
         batchSize: 16,
-        epochs: 40,
+        epochs: 20,
         callbacks: [new tf.CustomCallback({ onEpochEnd: logProgress })       
       ]
     };
@@ -188,6 +188,11 @@ async function trainModel(model, X_train, y_train){
 //Funcion auxiliar para aleatorizar
 function aleatorizar(a,b){
     return Math.random() - 0.5;
+}
+
+//Funcion para guardar el modelo
+async function saveModel(model){
+    model.save('models/modelo_manos');
 }
 
 //Funcion auxiliar loss logaritmico
