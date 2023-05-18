@@ -62,14 +62,21 @@ AFRAME.registerComponent("log-hand-pose", {
         //Capturamos el frame y creamos el contenedor de las poses de la mano
         const frame = this.el.sceneEl.frame;
         let poses = new Float32Array(16*25);
+        let inputSource;
+        let right_hand;
         
 
         const joints = [];
-        
+        if(this.session.inputSources.length == 0){ return; }
+        if(this.session.inputSources.length >=1){
+        inputSource = this.session.inputSources[0];
+        right_hand = this.session.inputSources[0].hand;}
+      // }else{
+      //   inputSource = this.session.inputSources[1];
+      //   right_hand = this.session.inputSources[1].hand;
+      // }
         //Si se ha detectado la mano derecha
-        if (this.session.inputSources[1].hand) {
-            let inputSource = this.session.inputSources[1];
-            let right_hand = this.session.inputSources[1].hand;
+        if (right_hand) {
             
             //Cogemos la muñeca
             const wrist = inputSource.hand.get("wrist");

@@ -36,7 +36,7 @@ wss.on("connection", function connection(ws){
         console.log("STOP RECORDING");
         if (accumulatedData.length > 0) {
           const data = JSON.stringify(accumulatedData);
-          const filename = 'vocalO.json';
+          const filename = 'sinvocal.json';
           fs.appendFile(filename, data, (err) => {
             if (err) {
               console.error(err);
