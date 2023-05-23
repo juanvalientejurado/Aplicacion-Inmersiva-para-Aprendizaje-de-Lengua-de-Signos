@@ -5,7 +5,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.js"></script>
     <script src="https://gftruj.github.io/hand.tracking.controls.extras/dist/aframe-hand-tracking-controls-extras.js"></script>
     <script src="https://unpkg.com/aframe-aabb-collider-component@3.1.0/dist/aframe-aabb-collider-component.min.js"></script>
-    <script src="script_toma_datos.js"></script>
+    <script src="inference.js"></script>
 
   </head>
   <body>
@@ -16,6 +16,7 @@
         hand-tracking-controls="hand: right"
         hand-tracking-extras
         log-hand-pose
+        material = "color: red"
       ></a-entity>
 
       <a-entity
@@ -25,7 +26,9 @@
         log-hand-pose
       ></a-entity>
      
-    </a-entity>
+      
+      <a-entity id = "cubo" geometry="primitive: box" position= "0 0 -4" material="color: white"></a-entity>
+      
 
     </a-scene>
 
