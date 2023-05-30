@@ -1,4 +1,6 @@
 var model; 
+var accumulated = 0;
+var target;
 
 
 //Componente mano
@@ -11,9 +13,9 @@ AFRAME.registerComponent("log-hand-pose", {
         this.joints = e.detail.data.joints;
       });
 
-      model = await loadModel("models/modelo_sin_orientacion/model.json");
+      model = await loadModel("models/modelo_posicion_ormuneca/model.json");
       
-
+      target = 'a';
       
     
   //Si se pulsa el boton de entrar en VR
@@ -37,9 +39,39 @@ AFRAME.registerComponent("log-hand-pose", {
       });
   },
 
+ 
+
   
 
   tick: function () {
+
+    //Lo primero que se hace al empezar el metodo tick es poner la imagen
+    var imagen = document.getElementById('imagen');
+    switch(target){
+      case 'a':
+        imagen.setAttribute('src', 'imagenes/a.jpg');
+        break;
+      case 'e':
+        imagen.setAttribute('src', 'imagenes/e.jpg');
+        break;
+      case 'i':
+        imagen.setAttribute('src', 'imagenes/i.jpg');
+        break;
+      case 'o':
+        imagen.setAttribute('src', 'imagenes/o.jpg');
+        break;
+      case 'u':
+        imagen.setAttribute('src', 'imagenes/u.jpg');
+        break;
+      default:
+        break;
+    }
+
+
+      
+      
+
+    
       
     const orderedJoints = [
       ["thumb-metacarpal", "thumb-phalanx-proximal", "thumb-phalanx-distal", "thumb-tip"],
@@ -66,8 +98,8 @@ AFRAME.registerComponent("log-hand-pose", {
         inputSource = this.session.inputSources[0];
         right_hand = this.session.inputSources[0].hand;
       }else{
-        inputSource = this.session.inputSources[1];
-        right_hand = this.session.inputSources[1].hand;
+        inputSource = this.session.inputSources[0];
+        right_hand = this.session.inputSources[0].hand;
       }
       
       
@@ -111,45 +143,91 @@ AFRAME.registerComponent("log-hand-pose", {
         var posicion_normalizada= normalize_positions(coordenadas_posicion);
 
         //var characteristic_vector = get_characteristic_vector(coordenadas_posicion);
-        var orientacion_mano = [coordenadas_orientacion[33], coordenadas_orientacion[34], coordenadas_orientacion[35]]
+        var orientacion_mano = [coordenadas_orientacion[0], coordenadas_orientacion[1], coordenadas_orientacion[2]]
         var coordenadas = posicion_normalizada.concat(orientacion_mano);
         //console.log(coordenadas);
-        var input_tensor = tf.tensor(posicion_normalizada).reshape([1,75]);
+        var input_tensor = tf.tensor(coordenadas).reshape([1,78]);
         //console.log(input_tensor.shape)
         const prediction = model.predict(input_tensor);
         //console.log(prediction.arraySync());
         const class_pred = prediction.argMax(axis=1).arraySync();
-        console.log(class_pred[0]);
+        //console.log(class_pred[0]);
         var cube = document.querySelector("#cubo");
+        
         switch(class_pred[0]){
             case 0:
-                cube.setAttribute("material", "color", "red");
+                if(target == 'a'){
+                  accumulated++;
+                }
+                if(accumulated == 500){cube.setAttribute("material", "color", "yellow");}
+                if(target =='a' && accumulated == 1000){
+                  cube.setAttribute("material", "color", "green");
+                  target = 'e';
+                  accumulated=0;
+                }
                 break;
             case 1: 
-                cube.setAttribute("material", "color", "blue");
+                if(target == 'e'){
+                  accumulated++;
+                }
+                if(accumulated == 500){cube.setAttribute("material", "color", "yellow");}
+                if(target == 'e' && accumulated == 1000){
+                  cube.setAttribute("material", "color", "green");
+                  target = 'i';
+                  accumulated=0;
+                }
                 break;
             case 2:
-                cube.setAttribute("material", "color", "yellow");
+                if(target == 'i'){
+                  accumulated++;
+                }
+                if(accumulated == 500){cube.setAttribute("material", "color", "yellow");}
+                if(target == 'i' && accumulated == 1000){
+                  cube.setAttribute("material", "color", "green");
+                  target = 'o';
+                  accumulated = 0;
+                }
+                
                 break;
             case 3:
-                cube.setAttribute("material", "color", "green");
+                if(target == 'o'){
+                  accumulated++;
+                }
+                if(accumulated == 500){cube.setAttribute("material", "color", "yellow");}
+                if(target == 'o' && accumulated == 1000){
+                  cube.setAttribute("material", "color", "green");
+                  target = 'u';
+                  accumulated = 0;
+                }
                 break;
             case 4:
-                cube.setAttribute("material", "color", "black");
+                if(target == 'u'){
+                  accumulated++;
+                }
+                if(accumulated == 500){cube.setAttribute("material", "color", "yellow");}
+                if(target == 'u' && accumulated == 1000){
+                  cube.setAttribute("material", "color", "green");
+                  target='a';
+                  accumulated = 0;
+                }
                 break;
+            case 5: 
+                accumulated = 0;
             default:
                 cube.setAttribute("material", "color", "white");
 
         }
-        
+        console.log(accumulated)
         }else{
           console.log("No se ha detectado mano");
         }
 
+      
       }
     }
   }
 }
+  
 );
 
 //Funcion que carga el modelo
@@ -258,82 +336,4 @@ function normalizePoints(punto, hand_center, hand_size){
       y: (punto.y - hand_center.y) / hand_size,
       z: (punto.z - hand_center.z) / hand_size
   }
-}
-
-
-
-//Funcion que normaliza como en el paper
-function get_characteristic_vector(coordenadas_posicion){
-  var nudillo_indice = {
-      x: coordenadas_posicion[18],
-      y: coordenadas_posicion[19],
-      z: coordenadas_posicion[20]
-  }
-  var nudillo_corazon = {
-      x: coordenadas_posicion[33],
-      y: coordenadas_posicion[34],
-      z: coordenadas_posicion[35]
-  }
-  var nudillo_menique = {
-      x: coordenadas_posicion[63],
-      y: coordenadas_posicion[64],
-      z: coordenadas_posicion[65]
-  }
-  //Media de los nudillos del indice, corazon y meñique
-  var punto_central = getCenterPoint_paper(nudillo_indice, nudillo_corazon, nudillo_menique);
-
-  var muneca={
-      x: coordenadas_posicion[0],
-      y: coordenadas_posicion[1],
-      z: coordenadas_posicion[2]
-  }
-  //El angulo del vector es el vector definido entre dos vectores: ver funcion 
-  var punto_final = getVectorAngle(nudillo_corazon, muneca, nudillo_menique, nudillo_indice);
-
-  var normalized_positions ={
-      x: (punto_central.x - punto_final.x),
-      y: (punto_central.y - punto_final.y),
-      z: (punto_central.z - punto_final.z)
-  }
-
-  vector_característico = [normalized_positions.x, normalized_positions.y, normalized_positions.z];
-
-  return vector_característico;
-  
-}
-
-
-//Calculo del centro de la mano
-function getCenterPoint_paper(nudillo_indice, nudillo_corazon, nudillo_menique){
-  var center_x = (nudillo_indice.x + nudillo_corazon.x + nudillo_menique.x)/3;
-  var center_y = (nudillo_indice.y + nudillo_corazon.y + nudillo_menique.y)/3;
-  var center_z = (nudillo_indice.z + nudillo_corazon.z + nudillo_menique.z)/3;
-
-  return {
-      x: center_x,
-      y: center_y,
-      z: center_z
-  }
-}
-
-function getVectorAngle(nudillo_corazon, muneca, nudillo_menique, nudillo_indice){
-    var vector1 = {
-        x: (nudillo_corazon.x - muneca.x),
-        y: (nudillo_corazon.y - muneca.y),
-        z: (nudillo_corazon.z - muneca.z)
-    }
-
-    var vector2 = {
-        x: (nudillo_menique.x - nudillo_indice.x),
-        y: (nudillo_menique.y - nudillo_indice.y),
-        z: (nudillo_menique.z - nudillo_indice.z)
-    }
-
-    var vector_resultante ={
-        x: (vector1.x + vector2.x),
-        y: (vector1.y + vector2.y),
-        z: (vector1.z + vector2.z)
-    }
-
-    return vector_resultante;
 }

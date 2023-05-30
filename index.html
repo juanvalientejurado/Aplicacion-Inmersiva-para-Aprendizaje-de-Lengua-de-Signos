@@ -11,6 +11,22 @@
   <body>
     <a-scene>
       <a-sky color="#ECECEC"></a-sky>
+
+      <a-entity position="4 3 -7">
+        <a-image id = 'imagen' src=".jpg" width="4" height="2"></a-image>
+      </a-entity>
+
+      <a-entity position="-2.5 5 -7">
+        <a-text value="¡Bienvenido al aprendizaje de lengua de signos!" color="#000" width="6"></a-text>
+      </a-entity>
+
+      <a-entity position="-4 3 -7">
+        <a-text value="Coloca la mano como se te indica en la imagen. \n 
+        Cuando se ponga de color verde, habras aprendido a hacer una nueva letra en lenguaje de signos!" color="#000" width="6"></a-text>
+      </a-entity>
+
+
+
       <a-entity
         id="rightHand"
         hand-tracking-controls="hand: right"

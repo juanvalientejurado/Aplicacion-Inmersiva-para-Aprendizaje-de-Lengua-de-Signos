@@ -68,7 +68,7 @@ const predictions = model.predict(X_test);
 
 const y_test_pred = predictions.argMax(axis=1).arraySync();
 const confusionMatrix = tf.math.confusionMatrix(y_test, y_test_pred, NUM_CLASSES);
-await model.save('file://./models/modelo_posicion_orcentral');
+await model.save('file://./models/modelo_posicion_ormuneca');
 console.log(confusionMatrix.arraySync());
 }
 
@@ -145,7 +145,7 @@ function createDataTensor(data){
 
         //var characteristic_vector = get_characteristic_vector(coordenadas_posicion);
         //Una vez normalizados los comparamos
-        var orientacion_mano = [coordenadas_orientacion[33], coordenadas_orientacion[34], coordenadas_orientacion[35]]
+        var orientacion_mano = [coordenadas_orientacion[0], coordenadas_orientacion[1], coordenadas_orientacion[2]]
         var coordenadas = posicion_normalizada.concat(orientacion_mano);
         //Array de nframes filas por 150 columnas
         features.push(coordenadas);
@@ -171,108 +171,6 @@ function createDataTensor(data){
         y_test: test_output_tensor
     };
 }
-
-
-//Funcion que normaliza como en el paper
-function get_characteristic_vector(coordenadas_posicion){
-    var nudillo_indice = {
-        x: coordenadas_posicion[18],
-        y: coordenadas_posicion[19],
-        z: coordenadas_posicion[20]
-    }
-    var nudillo_corazon = {
-        x: coordenadas_posicion[33],
-        y: coordenadas_posicion[34],
-        z: coordenadas_posicion[35]
-    }
-    var nudillo_menique = {
-        x: coordenadas_posicion[63],
-        y: coordenadas_posicion[64],
-        z: coordenadas_posicion[65]
-    }
-    //Media de los nudillos del indice, corazon y meñique
-    var punto_central = getCenterPoint_paper(nudillo_indice, nudillo_corazon, nudillo_menique);
-
-    var muneca={
-        x: coordenadas_posicion[0],
-        y: coordenadas_posicion[1],
-        z: coordenadas_posicion[2]
-    }
-    //El angulo del vector es el vector definido entre dos vectores: ver funcion 
-    var punto_final = getVectorAngle(nudillo_corazon, muneca, nudillo_menique, nudillo_indice);
-
-    var normalized_positions ={
-        x: (punto_central.x - punto_final.x),
-        y: (punto_central.y - punto_final.y),
-        z: (punto_central.z - punto_final.z)
-    }
-
-    vector_característico = [normalized_positions.x, normalized_positions.y, normalized_positions.z];
-
-    return vector_característico;
-    
-}
-
-
-
-//Calculo del centro de la mano
-function getCenterPoint_paper(nudillo_indice, nudillo_corazon, nudillo_menique){
-    var center_x = (nudillo_indice.x + nudillo_corazon.x + nudillo_menique.x)/3;
-    var center_y = (nudillo_indice.y + nudillo_corazon.y + nudillo_menique.y)/3;
-    var center_z = (nudillo_indice.z + nudillo_corazon.z + nudillo_menique.z)/3;
-
-    return {
-        x: center_x,
-        y: center_y,
-        z: center_z
-    }
-}
-
-function getVectorAngle(nudillo_corazon, muneca, nudillo_menique, nudillo_indice){
-    var vector1 = {
-        x: (nudillo_corazon.x - muneca.x),
-        y: (nudillo_corazon.y - muneca.y),
-        z: (nudillo_corazon.z - muneca.z)
-    }
-
-    var vector2 = {
-        x: (nudillo_menique.x - nudillo_indice.x),
-        y: (nudillo_menique.y - nudillo_indice.y),
-        z: (nudillo_menique.z - nudillo_indice.z)
-    }
-
-    var vector_resultante ={
-        x: (vector1.x + vector2.x),
-        y: (vector1.y + vector2.y),
-        z: (vector1.z + vector2.z)
-    }
-
-    return vector_resultante;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 //Funcion para normalizar las posiciones
 function normalize_positions(coordenadas_posicion){
