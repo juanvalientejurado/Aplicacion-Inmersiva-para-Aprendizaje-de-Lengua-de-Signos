@@ -5,6 +5,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.js"></script>
     <script src="https://gftruj.github.io/hand.tracking.controls.extras/dist/aframe-hand-tracking-controls-extras.js"></script>
     <script src="https://unpkg.com/aframe-aabb-collider-component@3.1.0/dist/aframe-aabb-collider-component.min.js"></script>
+    <script src="https://cdn.rawgit.com/supermedium/aframe-environment-component/v4.2.0/dist/aframe-environment-component.min.js"></script>
     <script src="inference.js"></script>
 
   </head>
@@ -12,17 +13,17 @@
     <a-scene>
       <a-sky color="#ECECEC"></a-sky>
 
-      <a-entity position="4 3 -7">
+      <a-entity position="4 3 -10">
         <a-image id = 'imagen' src=".jpg" width="4" height="2"></a-image>
       </a-entity>
 
-      <a-entity position="-2.5 5 -7">
-        <a-text value="¡Bienvenido al aprendizaje de lengua de signos!" color="#000" width="6"></a-text>
+      <a-entity position="-2.5 6 -10">
+        <a-text value="Bienvenido al aprendizaje de la lengua de signos" color="#000" width="10"></a-text>
       </a-entity>
 
-      <a-entity position="-4 3 -7">
-        <a-text value="Coloca la mano como se te indica en la imagen. \n 
-        Cuando se ponga de color verde, habras aprendido a hacer una nueva letra en lenguaje de signos!" color="#000" width="6"></a-text>
+      <a-entity position="-5 3 -10">
+        <a-text value="Coloca la mano tal y como se te indica en la imagen \n 
+        Cuando el semaforo se ponga de color verde, habras aprendido a hacer una nueva letra en lenguaje de signos!" color="#000" width="6"></a-text>
       </a-entity>
 
 
@@ -32,18 +33,16 @@
         hand-tracking-controls="hand: right"
         hand-tracking-extras
         log-hand-pose
-        material = "color: red"
+        
+
       ></a-entity>
 
-      <a-entity
-        id="leftHand"
-        hand-tracking-controls="hand: left"
-        hand-tracking-extras
-        log-hand-pose
-      ></a-entity>
+     
      
       
-      <a-entity id = "cubo" geometry="primitive: box" position= "0 0 -4" material="color: white"></a-entity>
+      <a-entity id = "esfera1" geometry="primitive: sphere" position= "11 10 -28" radius = 0.01 material="color: white"></a-entity>
+      <a-entity id = "esfera2" geometry="primitive: sphere" position= "14 10 -28" radius = 0.01 material="color: white"></a-entity>
+      <a-entity id = "esfera3" geometry="primitive: sphere" position= "17 10 -28" radius = 0.01 material="color: white"></a-entity>
       
 
     </a-scene>

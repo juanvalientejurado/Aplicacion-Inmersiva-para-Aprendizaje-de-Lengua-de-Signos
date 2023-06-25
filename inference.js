@@ -1,8 +1,12 @@
 var model; 
 var accumulated = 0;
 var target;
+var color = "red"
+var predictionArray=[];
 
 
+
+i = 0;
 //Componente mano
 AFRAME.registerComponent("log-hand-pose", {     
     //
@@ -36,6 +40,7 @@ AFRAME.registerComponent("log-hand-pose", {
       this.el.sceneEl.addEventListener("exit-vr", (e) => {
         console.log("exit-vr");
         this.isImmersive = false;
+        webSocket.send(JSON.stringify({msg: "STOP"}));
       });
   },
 
@@ -44,6 +49,8 @@ AFRAME.registerComponent("log-hand-pose", {
   
 
   tick: function () {
+
+   
 
     //Lo primero que se hace al empezar el metodo tick es poner la imagen
     var imagen = document.getElementById('imagen');
@@ -67,12 +74,6 @@ AFRAME.registerComponent("log-hand-pose", {
         break;
     }
 
-
-      
-      
-
-    
-      
     const orderedJoints = [
       ["thumb-metacarpal", "thumb-phalanx-proximal", "thumb-phalanx-distal", "thumb-tip"],
       ["index-finger-metacarpal", "index-finger-phalanx-proximal", "index-finger-phalanx-intermediate", "index-finger-phalanx-distal", "index-finger-tip"],
@@ -83,7 +84,7 @@ AFRAME.registerComponent("log-hand-pose", {
 
     //Si estamos en inmersivo y tenemos articulaciones 
     if (this.joints && this.isImmersive) {
-
+      i++;
       //Capturamos el frame y creamos el contenedor de las poses de la mano
       const frame = this.el.sceneEl.frame;
       let poses = new Float32Array(16*25);
@@ -92,15 +93,10 @@ AFRAME.registerComponent("log-hand-pose", {
       const joints = [];
       let inputSource;
       let right_hand;
-      //Si se ha detectado la mano derecha
-      if(this.session.inputSources.length == 0){ return; }
-      if(this.session.inputSources.length ==1){
-        inputSource = this.session.inputSources[0];
-        right_hand = this.session.inputSources[0].hand;
-      }else{
-        inputSource = this.session.inputSources[0];
-        right_hand = this.session.inputSources[0].hand;
-      }
+      
+      inputSource = this.session.inputSources[0];
+      right_hand = this.session.inputSources[0].hand;
+      
       
       
       if (right_hand) {
@@ -151,17 +147,28 @@ AFRAME.registerComponent("log-hand-pose", {
         const prediction = model.predict(input_tensor);
         //console.log(prediction.arraySync());
         const class_pred = prediction.argMax(axis=1).arraySync();
-        //console.log(class_pred[0]);
-        var cube = document.querySelector("#cubo");
+        console.log(class_pred[0]);
+       
+        var e1 = document.querySelector("#esfera1");
+        var e2 = document.querySelector("#esfera2");
+        var e3 = document.querySelector("#esfera3");
+
+
         
         switch(class_pred[0]){
             case 0:
                 if(target == 'a'){
                   accumulated++;
+                  e2.setAttribute("material", "color", "white");
+                  e3.setAttribute("material", "color", "white");
                 }
-                if(accumulated == 500){cube.setAttribute("material", "color", "yellow");}
-                if(target =='a' && accumulated == 1000){
-                  cube.setAttribute("material", "color", "green");
+                if(accumulated > 100){
+                  e2.setAttribute("material", "color", "yellow");
+                }else{
+                  e1.setAttribute("material", "color", "red");
+                }
+                if(target =='a' && accumulated > 500){
+                  e3.setAttribute("material", "color", "green");
                   target = 'e';
                   accumulated=0;
                 }
@@ -169,10 +176,16 @@ AFRAME.registerComponent("log-hand-pose", {
             case 1: 
                 if(target == 'e'){
                   accumulated++;
+                  e2.setAttribute("material", "color", "white");
+                  e3.setAttribute("material", "color", "white");
                 }
-                if(accumulated == 500){cube.setAttribute("material", "color", "yellow");}
-                if(target == 'e' && accumulated == 1000){
-                  cube.setAttribute("material", "color", "green");
+                if(accumulated > 100){
+                  e2.setAttribute("material", "color", "yellow");
+                }else{
+                  e1.setAttribute("material", "color", "red");
+                }
+                if(target == 'e' && accumulated == 500){
+                  e3.setAttribute("material", "color", "green");
                   target = 'i';
                   accumulated=0;
                 }
@@ -180,10 +193,16 @@ AFRAME.registerComponent("log-hand-pose", {
             case 2:
                 if(target == 'i'){
                   accumulated++;
+                  e2.setAttribute("material", "color", "white");
+                  e3.setAttribute("material", "color", "white");
                 }
-                if(accumulated == 500){cube.setAttribute("material", "color", "yellow");}
-                if(target == 'i' && accumulated == 1000){
-                  cube.setAttribute("material", "color", "green");
+                if(accumulated > 100){
+                  e2.setAttribute("material", "color", "yellow");
+                }else{
+                  e1.setAttribute("material", "color", "red");
+                }               
+                if(target == 'i' && accumulated == 500){
+                  e3.setAttribute("material", "color", "green");
                   target = 'o';
                   accumulated = 0;
                 }
@@ -192,32 +211,51 @@ AFRAME.registerComponent("log-hand-pose", {
             case 3:
                 if(target == 'o'){
                   accumulated++;
+                  e2.setAttribute("material", "color", "white");
+                  e3.setAttribute("material", "color", "white");
                 }
-                if(accumulated == 500){cube.setAttribute("material", "color", "yellow");}
-                if(target == 'o' && accumulated == 1000){
-                  cube.setAttribute("material", "color", "green");
+                if(accumulated > 100){
+                  e2.setAttribute("material", "color", "yellow");
+                }else{
+                  e1.setAttribute("material", "color", "red");
+                } 
+                if(target == 'o' && accumulated == 500){
+                  e3.setAttribute("material", "color", "green");
                   target = 'u';
                   accumulated = 0;
                 }
                 break;
             case 4:
                 if(target == 'u'){
+                  e2.setAttribute("material", "color", "white");
+                  e3.setAttribute("material", "color", "white");
                   accumulated++;
                 }
-                if(accumulated == 500){cube.setAttribute("material", "color", "yellow");}
-                if(target == 'u' && accumulated == 1000){
-                  cube.setAttribute("material", "color", "green");
+                if(accumulated > 100){
+                  e2.setAttribute("material", "color", "yellow");
+                }else{
+                  e1.setAttribute("material", "color", "red");
+                }                 
+                if(target == 'u' && accumulated == 500){
+                  e3.setAttribute("material", "color", "green");
                   target='a';
                   accumulated = 0;
                 }
                 break;
             case 5: 
                 accumulated = 0;
+                e1.setAttribute("material", "color", "white");
+                e2.setAttribute("material", "color", "white");
+                e3.setAttribute("material", "color", "white");
+  
             default:
-                cube.setAttribute("material", "color", "white");
+              e1.setAttribute("material", "color", "white");
+              e2.setAttribute("material", "color", "white");
+              e3.setAttribute("material", "color", "white");
+
 
         }
-        console.log(accumulated)
+        //console.log(accumulated)
         }else{
           console.log("No se ha detectado mano");
         }
